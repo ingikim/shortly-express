@@ -99,7 +99,16 @@ function(req, res) {
 
 app.post('/login',
 function(req, res) {
-  res.redirect('/');
+  var username = req.body.username;
+  var password = req.body.password;
+
+  new User({ username: username }).fetch().then(function(found) {
+    if(found) {
+      res.redirect('/');
+    } else {
+      res.redirect('/login');
+    }
+  });
 });
 
 /************************************************************/
