@@ -87,15 +87,20 @@ function(req, res) {
 /************************************************************/
 
 app.post('/signup',
-  function(req, res) {
-    var username = req.body.username;
-    var password = req.body.password;
+function(req, res) {
+  var username = req.body.username;
+  var password = req.body.password;
 
-    new User({ username: username }).save().then(function(newUser) {
-      // Users.add(newUser);
-      res.send(200, newUser);
-    });
+  new User({ username: username }).save().then(function(newUser) {
+    // Users.add(newUser);
+    res.redirect('/');
   });
+});
+
+app.post('/login',
+function(req, res) {
+  res.redirect('/');
+});
 
 /************************************************************/
 // Handle the wildcard route last - if all other routes fail
