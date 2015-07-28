@@ -102,9 +102,12 @@ function(req, res) {
   var username = req.body.username;
   var password = req.body.password;
 
-  new User({ username: username }).fetch().then(function(found) {
-    if(found) {
-      res.redirect('/');
+  new User({ username: username }).fetch().then(function(user) {
+    if(user) {
+      new Session({user_id: user.get('id')}).save().then(function(newSession) {
+        res.cookie('session', newSession.get('token'));
+        res.redirect('/');
+      });
     } else {
       res.redirect('/login');
     }
