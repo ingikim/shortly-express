@@ -10,6 +10,7 @@ var User = require('./app/models/user');
 var Links = require('./app/collections/links');
 var Link = require('./app/models/link');
 var Click = require('./app/models/click');
+var Session = require('./app/models/session');
 
 var app = express();
 
@@ -85,6 +86,10 @@ function(req, res) {
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+app.get('/signup',
+function(req, res) {
+  res.render('signup');
+});
 
 app.post('/signup',
 function(req, res) {
@@ -103,7 +108,7 @@ function(req, res) {
   var password = req.body.password;
 
   new User({ username: username }).fetch().then(function(user) {
-    if(user) {
+    if (user) {
       new Session({user_id: user.get('id')}).save().then(function(newSession) {
         res.cookie('session', newSession.get('token'));
         res.redirect('/');

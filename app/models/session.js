@@ -10,3 +10,5 @@ var Session = db.Model.extend({
     });
   }
 });
+
+module.exports = Session;
