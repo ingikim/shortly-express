@@ -118,10 +118,11 @@ function(req, res) {
   var username = req.body.username;
   var password = req.body.password;
 
-  new User({ username: username }).save().then(function(newUser) {
-    // Users.add(newUser);
-    res.redirect('/');
-  });
+  User.signup(username, password, function(user) {
+    user.save().then(function(newUser) {
+      res.redirect('/');
+    })
+  })
 });
 
 app.post('/login',
@@ -131,11 +132,20 @@ function(req, res) {
 
   new User({ username: username }).fetch().then(function(user) {
     if (user) {
-      new Session({user_id: user.get('id')}).save().then(function(newSession) {
-        res.cookie('session', newSession.get('token'));
-        res.redirect('/');
-      });
+      user.checkPassword(password, function(valid) {
+        if (valid) {
+          new Session({user_id: user.get('id')}).save().then(function(newSession) {
+            res.cookie('session', newSession.get('token'));
+            console.log(username, 'logged in successfully');
+            res.redirect('/');
+          });
+        } else {
+          console.log('Invalid password for', username);
+          res.redirect('/login');
+        }
+      })
     } else {
+      console.log(username, 'does not exist');
       res.redirect('/login');
     }
   });
