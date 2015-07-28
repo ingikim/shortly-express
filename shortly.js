@@ -2,6 +2,7 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 
 
 var db = require('./app/config');
@@ -22,12 +23,27 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
+app.use(cookieParser());
+
+app.use(function(req, res, next) {
+  if(req.cookies.session) {
+    new Session( {token: req.cookies.session} ).fetch().then(function(session) {
+      req.session = session;
+      next();
+    });
+  } else {
+    next();
+  }
+})
 
 
 app.get('/', 
 function(req, res) {
-  res.redirect('/login');
-  // res.render('index');
+  if(req.session) {
+    res.render('index');
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.get('/login', 
@@ -37,16 +53,22 @@ function(req, res) {
 
 app.get('/create', 
 function(req, res) {
-  res.redirect('/login');
-  // res.render('index');
+  if (req.session) {
+    res.render('index');
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.get('/links', 
 function(req, res) {
-  res.redirect('/login');
-  // Links.reset().fetch().then(function(links) {
-  //   res.send(200, links.models);
-  // });
+  if (req.session) {
+    Links.reset().fetch().then(function(links) {
+      res.send(200, links.models);
+    });
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.post('/links', 
